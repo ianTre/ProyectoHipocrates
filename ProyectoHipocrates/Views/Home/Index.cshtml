@@ -14,8 +14,8 @@
         <div class="ibox-content">
 
             @using (Html.BeginForm())
-    {
-        @Html.AntiForgeryToken()
+            {
+                @Html.AntiForgeryToken()
 
             <div class="form-horizontal">
 
@@ -24,15 +24,15 @@
                 @Html.HiddenFor(model => model.fechaCrea)
                 @Html.HiddenFor(model => model.usuarioCrea)
 
-                
-    @*<div class="form-group">
-        @Html.LabelFor(model => model.idTipoDocumento, new { @class = "control-label col-md-2" })
-        <div class="col-md-10">
-            @Html.DropDownListFor(model => model.idTipoDocumento, ModeloHelper.ListaDeTipoDocumento(), "-Seleccione-", new { @class = "form-control select", id = "idTipoDocumento" })
-            @Html.ValidationMessageFor(model => model.idTipoDocumento)
-        </div>
-    </div>*@
-        
+
+                @*<div class="form-group">
+            @Html.LabelFor(model => model.idTipoDocumento, new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.DropDownListFor(model => model.idTipoDocumento, ModeloHelper.ListaDeTipoDocumento(), "-Seleccione-", new { @class = "form-control select", id = "idTipoDocumento" })
+                @Html.ValidationMessageFor(model => model.idTipoDocumento)
+            </div>
+        </div>*@
+
                 <div class="form-group">
                     @Html.LabelFor(model => model.numeroDocumento, new { @class = "control-label col-md-2" })
                     <div class="col-md-10">
@@ -42,12 +42,12 @@
                 </div>
 
                 @*<div class="form-group">
-                    @Html.LabelFor(model => model.idSexo, new { @class = "control-label col-md-2" })
-                    <div class="col-md-10">
-                        @Html.DropDownListFor(model => model.idSexo, ModeloHelper.ListaDeSexo(), "-Seleccione-", new { @class = "form-control select" })
-                        @Html.ValidationMessageFor(model => model.idSexo)
-                    </div>
-                </div>*@
+            @Html.LabelFor(model => model.idSexo, new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.DropDownListFor(model => model.idSexo, ModeloHelper.ListaDeSexo(), "-Seleccione-", new { @class = "form-control select" })
+                @Html.ValidationMessageFor(model => model.idSexo)
+            </div>
+        </div>*@
                 <div class="form-group">
                     @Html.LabelFor(model => model.primerApellido, new { @class = "control-label col-md-2" })
                     <div class="col-md-10">
@@ -71,13 +71,13 @@
                     </div>
                 </div>
                 @*<div class="form-group">
-                    @Html.LabelFor(model => model.tipoTelefono, new { @class = "control-label col-md-2" })
-                    <div class="col-md-10">
-                        @Html.DropDownListFor(model => model.tipoTelefono, ModeloHelper.ListaDeTipoTelefono(), "-Seleccione-", new { @class = "form-control select" })
-                        @Html.EditorFor(model => model.tipoTelefono)
-                        @Html.ValidationMessageFor(model => model.tipoTelefono)
-                    </div>
-                </div>*@
+            @Html.LabelFor(model => model.tipoTelefono, new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.DropDownListFor(model => model.tipoTelefono, ModeloHelper.ListaDeTipoTelefono(), "-Seleccione-", new { @class = "form-control select" })
+                @Html.EditorFor(model => model.tipoTelefono)
+                @Html.ValidationMessageFor(model => model.tipoTelefono)
+            </div>
+        </div>*@
                 <div class="form-group">
                     @Html.LabelFor(model => model.telefono, new { @class = "control-label col-md-2" })
                     <div class="col-md-10">
@@ -108,12 +108,12 @@
                     </div>
                 </div>
                 @*<div class="form-group">
-                    @Html.LabelFor(model => model.idEspecialidad_array, new { @class = "control-label col-md-2" })
-                    <div class="col-md-10">
-                        @Html.ListBoxFor(model => model.idEspecialidad_array, new MultiSelectList(ModeloHelper.ListaDeEspecialidad(), "Value", "Text"), htmlAttributes: new { @class = "form-control select", size = 8 })
-                        @Html.ValidationMessageFor(model => model.idEspecialidad_array)
-                    </div>
-                </div>*@
+            @Html.LabelFor(model => model.idEspecialidad_array, new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.ListBoxFor(model => model.idEspecialidad_array, new MultiSelectList(ModeloHelper.ListaDeEspecialidad(), "Value", "Text"), htmlAttributes: new { @class = "form-control select", size = 8 })
+                @Html.ValidationMessageFor(model => model.idEspecialidad_array)
+            </div>
+        </div>*@
                 <div class="form-group">
                     @Html.LabelFor(model => model.vigente, new { @class = "control-label col-md-2" })
                     <div class="col-md-10">
@@ -121,6 +121,8 @@
                         @Html.ValidationMessageFor(model => model.vigente)
                     </div>
                 </div>
+                @Html.Hidden("indice", (int)ViewBag.indice)
+                @Html.HiddenFor(model => model.index)
                 <div class="form-group">
                     <div class="col-md-offset-2 col-md-10">
                         <input type="submit" value="Guardar" class="btn btn-primary" />
@@ -128,9 +130,17 @@
                     </div>
                 </div>
             </div>
-}
+            }
 
 
         </div>
     </div>
 </div>
+
+
+<script>
+    $( window ).on( "load", function() {
+       // var indice = $('#tagIndice').val();
+        ViewBag.indice
+    });
+</script>

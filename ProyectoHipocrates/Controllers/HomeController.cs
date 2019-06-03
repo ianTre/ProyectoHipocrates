@@ -12,18 +12,24 @@ namespace ProyectoHipocrates.Controllers
     {
         GoogleSS spreed = new GoogleSS();
         Repositorio repo = new Repositorio();
+        List<ProfesionalModel> lstNuevosProf;
         public ActionResult Index()
         {
             
-            List<ProfesionalModel>  lstNuevosProf= spreed.ReadEntries();
+            lstNuevosProf= spreed.ReadEntries();
+            Session.Add("LstProfesionales", lstNuevosProf);
             var tes = repo.ObtenerEspecialidades();
-            ProfesionalModel profesional = new ProfesionalModel();
-            profesional.Mokear();
-            return View(profesional);
+            ViewBag.indice = 0;
+            if (lstNuevosProf.Count > 0)
+            {
+                return View(lstNuevosProf[0]);
+            }
+            else
+                return View("About");
         }
 
         [HttpPost]
-        public ActionResult Index(ProfesionalModel profesional)
+        public ActionResult Index(ProfesionalModel profesional,int indice)
         {
             int row = 34;
             string errores;
@@ -31,19 +37,28 @@ namespace ProyectoHipocrates.Controllers
             IList<object> fila = new List<object>();
             fila.Add("SI");
             matrix.Add(fila);
-            spreed.WriteInGoogleSS(matrix, row);
-
+            spreed.WriteInGoogleSS(matrix, profesional.index);
+            
             if (profesional.EsConsistente())
-            { 
+            {
                 if ((errores = ProfesionalExistente(profesional)).Length == 0)
                     repo.InsetarProfesional(profesional);
                 else
                 {
-                    //Mostrar mensaje de error
-                    return View(profesional);
+                    ViewBag.Message = "Ya existia un profesional con ese numero de documento";
                 }
             }
-            return View(profesional);
+
+            ViewBag.indice = indice++;
+            if (indice < lstNuevosProf.Count)
+            {
+                lstNuevosProf = (List<ProfesionalModel>)Session["LstProfesionales"];
+                return View(lstNuevosProf[indice]);
+            }
+            else
+            {
+                
+            }
         }
 
         private string ProfesionalExistente(ProfesionalModel nuevoProfesional)

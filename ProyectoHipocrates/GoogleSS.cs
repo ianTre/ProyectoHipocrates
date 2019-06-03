@@ -67,11 +67,13 @@ namespace ProyectoHipocrates
             IList<IList<object>> values = response.Values;
                 if (values != null && values.Count > 0)
                 {
+                    int i = 0;
                     foreach (var row in values)
                     {
+                        i++;
                         if (values[0] == row)
                             continue;
-                        ProfesionalModel profesional = BindearProfesional(row);
+                        ProfesionalModel profesional = BindearProfesional(row,i);
                         if (!Object.Equals(null, profesional))
                             lista.Add(profesional);
                     }
@@ -113,7 +115,7 @@ namespace ProyectoHipocrates
                 return JsonConvert.SerializeObject(response);   
         }
 
-        private static ProfesionalModel BindearProfesional(IList<object> row)
+        private static ProfesionalModel BindearProfesional(IList<object> row , int index)
         {
             try
             {
@@ -128,7 +130,7 @@ namespace ProyectoHipocrates
                 {
                     campos[i] = (row.Count > i) ? row[i].ToString() : string.Empty;
                 }
-
+                model.index = index;
                 string campoDone = campos[0].ToString();
                 if (campoDone.Length > 0)
                     return null;
@@ -160,7 +162,8 @@ namespace ProyectoHipocrates
                 model.primerNombre = campoNombre;
                 model.telefono = campoTelefono;
                 model.vigente = true;
-
+                
+                
                 return model;
             }
             catch (Exception ex)

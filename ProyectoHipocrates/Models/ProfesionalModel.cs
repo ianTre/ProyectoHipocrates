@@ -91,6 +91,8 @@ namespace ProyectoHipocrates.Models
 
         public string  Establecimiento { get; set; }
 
+        public int index { get; set; }
+
 
 
         internal void Mokear()
@@ -118,7 +120,9 @@ namespace ProyectoHipocrates.Models
 
         internal bool EsConsistente()
         {
+            
             bool correcto = true;
+            this.email = String.IsNullOrEmpty(this.email) ? string.Empty : this.email;
             if (this.email.Length > 0 && (!this.email.Contains("@") || !this.email.Contains(".com")))
                 correcto = false;
             if (this.matricula.Length < 1)
@@ -135,6 +139,9 @@ namespace ProyectoHipocrates.Models
             this.tipoTelefono = CaracteristicaTelefonica();
             this.idTipoDocumento = (integer > 10000000 && integer < 99000000) ? 1 : 4; // 1 = DNI , 4= Pasaporte
             this.idSexo = 1;
+            this.contactoObservaciones = String.IsNullOrEmpty(this.contactoObservaciones) ? string.Empty : this.contactoObservaciones;
+            this.telefono = String.IsNullOrEmpty(this.telefono) ? string.Empty : this.telefono;
+            
             return correcto;
         }
 
