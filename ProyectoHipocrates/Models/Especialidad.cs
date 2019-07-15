@@ -29,6 +29,26 @@ namespace ProyectoHipocrates.Models
 
         public String tipoEspecialidad { get; set; }
 
-        
+
+
+        public override bool Equals(Object obj)
+        {
+            //Check for null and compare run-time types.
+            if ((obj == null) || !this.GetType().Equals(obj.GetType()))
+            {
+                return false;
+            }
+            else
+            {
+                Especialidad p = (Especialidad)obj;
+                if(p.id == this.id && p.nombre.Trim().ToLower() == this.nombre.ToLower().Trim())
+                {
+                    return true;
+                }
+                return false;
+                
+            }
+        }
+
     }
 }

@@ -13,7 +13,7 @@
     <div class="col-md-12">
         <div class="ibox-content">
 
-            @using (Html.BeginForm())
+            @using (Html.BeginForm("Index","Home"))
             {
                 @Html.AntiForgeryToken()
 
@@ -41,6 +41,8 @@
                     </div>
                 </div>
 
+
+
                 @*<div class="form-group">
             @Html.LabelFor(model => model.idSexo, new { @class = "control-label col-md-2" })
             <div class="col-md-10">
@@ -55,11 +57,29 @@
                         @Html.ValidationMessageFor(model => model.primerApellido)
                     </div>
                 </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.apellidoSisa, new { @class = "control-label col-md-2" })
+                    <div class="col-md-10">
+                        @Html.EditorFor(model => model.apellidoSisa)
+                        @Html.ValidationMessageFor(model => model.apellidoSisa)
+                    </div>
+                </div>
+
+
                 <div class="form-group">
                     @Html.LabelFor(model => model.primerNombre, new { @class = "control-label col-md-2" })
                     <div class="col-md-10">
                         @Html.EditorFor(model => model.primerNombre)
                         @Html.ValidationMessageFor(model => model.primerNombre)
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.nombreSisa, new { @class = "control-label col-md-2" })
+                    <div class="col-md-10">
+                        @Html.EditorFor(model => model.nombreSisa)
+                        @Html.ValidationMessageFor(model => model.nombreSisa)
                     </div>
                 </div>
 
@@ -121,7 +141,6 @@
                         @Html.ValidationMessageFor(model => model.vigente)
                     </div>
                 </div>
-                @Html.Hidden("indice", (int)ViewBag.indice)
                 @Html.HiddenFor(model => model.index)
                 <div class="form-group">
                     <div class="col-md-offset-2 col-md-10">
@@ -137,10 +156,3 @@
     </div>
 </div>
 
-
-<script>
-    $( window ).on( "load", function() {
-       // var indice = $('#tagIndice').val();
-        ViewBag.indice
-    });
-</script>

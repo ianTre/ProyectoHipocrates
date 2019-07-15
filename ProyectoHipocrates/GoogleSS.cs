@@ -21,29 +21,29 @@ namespace ProyectoHipocrates
         static readonly string SpreadsheetId = "1001t4b01_zRFTXnGQaLBz25_8ZbeV9-L_T08YAxUG6Y";
         static readonly string sheet = "Respuestasdeformulario";
         static SheetsService service;
-
+        Repositorio repo = new Repositorio();
 
         public GoogleSS()
         {
             try
             {
 
-            
-            GoogleCredential credential;
-            using (var stream = new FileStream("client_secret.json", FileMode.Open, FileAccess.Read))
-            {
-                credential = GoogleCredential.FromStream(stream)
-                    .CreateScoped(Scopes);
-            }
 
-            // Create Google Sheets API service.
-            service = new SheetsService(new BaseClientService.Initializer()
-            {
-                HttpClientInitializer = credential,
-                ApplicationName = ApplicationName,
-            });
+                GoogleCredential credential;
+                using (var stream = new FileStream("client_secret.json", FileMode.Open, FileAccess.Read))
+                {
+                    credential = GoogleCredential.FromStream(stream)
+                        .CreateScoped(Scopes);
+                }
 
-            
+                // Create Google Sheets API service.
+                service = new SheetsService(new BaseClientService.Initializer()
+                {
+                    HttpClientInitializer = credential,
+                    ApplicationName = ApplicationName,
+                });
+
+
             }
             catch (Exception ex)
             {
@@ -58,22 +58,23 @@ namespace ProyectoHipocrates
             try
             {
                 List<ProfesionalModel> lista = new List<ProfesionalModel>();
-            
-            var range = $"{sheet}!A:M";
-            SpreadsheetsResource.ValuesResource.GetRequest request =
-                    service.Spreadsheets.Values.Get(SpreadsheetId, range);
 
-            var response = request.Execute();
-            IList<IList<object>> values = response.Values;
+                var range = $"{sheet}!A:M";
+                SpreadsheetsResource.ValuesResource.GetRequest request =
+                        service.Spreadsheets.Values.Get(SpreadsheetId, range);
+
+                var response = request.Execute();
+                IList<IList<object>> values = response.Values;
                 if (values != null && values.Count > 0)
                 {
+                    var lEs = repo.ObtenerEspecialidades();
                     int i = 0;
                     foreach (var row in values)
                     {
                         i++;
                         if (values[0] == row)
                             continue;
-                        ProfesionalModel profesional = BindearProfesional(row,i);
+                        ProfesionalModel profesional = BindearProfesional(row, i, lEs);
                         if (!Object.Equals(null, profesional))
                             lista.Add(profesional);
                     }
@@ -91,31 +92,31 @@ namespace ProyectoHipocrates
             }
         }
 
-        public string WriteInGoogleSS(List<IList<object>> data , int writtingRange)
+        public string WriteInGoogleSS(List<IList<object>> data, int writtingRange)
         {
-                String range = "Respuestasdeformulario!A"+ writtingRange.ToString()+":B";
-                string valueInputOption = "USER_ENTERED";
+            String range = "Respuestasdeformulario!A" + writtingRange.ToString() + ":B";
+            string valueInputOption = "USER_ENTERED";
 
-                // The new values to apply to the spreadsheet.
-                List<Google.Apis.Sheets.v4.Data.ValueRange> updateData = new List<Google.Apis.Sheets.v4.Data.ValueRange>();
-                var dataValueRange = new Google.Apis.Sheets.v4.Data.ValueRange();
-                dataValueRange.Range = range;
-                dataValueRange.Values = data;
-                updateData.Add(dataValueRange);
+            // The new values to apply to the spreadsheet.
+            List<Google.Apis.Sheets.v4.Data.ValueRange> updateData = new List<Google.Apis.Sheets.v4.Data.ValueRange>();
+            var dataValueRange = new Google.Apis.Sheets.v4.Data.ValueRange();
+            dataValueRange.Range = range;
+            dataValueRange.Values = data;
+            updateData.Add(dataValueRange);
 
             Google.Apis.Sheets.v4.Data.BatchUpdateValuesRequest requestBody = new Google.Apis.Sheets.v4.Data.BatchUpdateValuesRequest();
-                requestBody.ValueInputOption = valueInputOption;
-                requestBody.Data = updateData;
+            requestBody.ValueInputOption = valueInputOption;
+            requestBody.Data = updateData;
 
-                var request = service.Spreadsheets.Values.BatchUpdate(requestBody, SpreadsheetId);
+            var request = service.Spreadsheets.Values.BatchUpdate(requestBody, SpreadsheetId);
 
             Google.Apis.Sheets.v4.Data.BatchUpdateValuesResponse response = request.Execute();
-                // Data.BatchUpdateValuesResponse response = await request.ExecuteAsync(); // For async 
+            // Data.BatchUpdateValuesResponse response = await request.ExecuteAsync(); // For async 
 
-                return JsonConvert.SerializeObject(response);   
+            return JsonConvert.SerializeObject(response);
         }
 
-        private static ProfesionalModel BindearProfesional(IList<object> row , int index)
+        private static ProfesionalModel BindearProfesional(IList<object> row, int index, List<Especialidad> lstEspecialidad)
         {
             try
             {
@@ -142,7 +143,7 @@ namespace ProyectoHipocrates
                 string campoMatricula = campos[7].ToString();
                 string campoEspecialidad = campos[8].ToString();
                 string campoEstablecimiento = campos[9].ToString();
-                string campoSexo = campos[10].ToString();
+                string campoSexo = campos[11].ToString();
 
                 model.email = (string)campoCorreo;
                 model.Establecimiento = campoEstablecimiento;
@@ -162,14 +163,45 @@ namespace ProyectoHipocrates
                 model.primerNombre = campoNombre;
                 model.telefono = campoTelefono;
                 model.vigente = true;
-                
-                
+                model.CargarDatosSisa();
+                model.nombreEspecialidad = campoEspecialidad;
+                model.especialidad = MachearEspecialidad(model.nombreEspecialidad,lstEspecialidad);
+
+
                 return model;
             }
             catch (Exception ex)
             {
 
                 throw ex;
+            }
+        }
+
+        private static Especialidad MachearEspecialidad(string especialidad, List<Especialidad> lstEspecialidad)
+        {
+            try
+            {
+
+
+
+                Especialidad entidad;
+                especialidad = especialidad.Trim().ToLower();
+                entidad = lstEspecialidad.Find(x => x.nombre.ToLower().Trim() == especialidad);
+                if (Object.Equals(null, entidad))
+                {
+                    // no deberia ser posible que elijan especialidades que no existan 
+
+                    throw new Exception("Se selecciono una especialidad inexistente en la base de datos");
+
+
+                    //cambiar por : dejar vacio el combo box y seleccionar una especialidad en la vista.
+                }
+                return entidad;
+            }
+            catch (Exception ex)
+            {
+
+                throw;
             }
         }
     }

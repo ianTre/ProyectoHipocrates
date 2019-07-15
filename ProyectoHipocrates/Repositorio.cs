@@ -5,6 +5,7 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Web;
+using System.Web.Configuration;
 
 namespace ProyectoHipocrates
 {
@@ -51,6 +52,28 @@ namespace ProyectoHipocrates
         }
 
 
+        public void EjecutarJob(String nombreJob)
+        {
+            SqlConnection conn = dBAccess.GetConnection();
+            SqlCommand com = new SqlCommand("msdb.dbo.sp_start_job", conn);
+            com.CommandType = CommandType.StoredProcedure;
+            com.CommandTimeout = 0;
+            com.Parameters.Clear();
+            com.Parameters.Add(new SqlParameter("job_name", nombreJob));
+            try
+            {
+                conn.Open();
+                com.ExecuteScalar();
+                conn.Close();
+            }
+            catch (Exception ex)
+            {
+                conn.Close();
+                throw ex;
+            }
+        }
+
+
         public List<ProfesionalModel> ObtenerProfesionales()
         {
             try
@@ -82,6 +105,11 @@ namespace ProyectoHipocrates
             }
         }
 
+        
+
+
+        
+
         internal List<ProfesionalModel> GetProfesionales()
         {
             if (Object.Equals(null, this.profesionales))
@@ -89,10 +117,44 @@ namespace ProyectoHipocrates
             return profesionales;
         }
 
+
+        //public void InsetarEspecialidadProfesional(ProfesionalModel profesional , string conectionString)
+        //{
+        //    try
+        //    {
+        //        SqlConnection conn = dBAccess.GetConnection();
+        //        SqlCommand com = new SqlCommand("dbo.SP_Insertar_Profesional_Especialidad", conn);
+        //        com.CommandType = CommandType.StoredProcedure;
+        //        com.CommandTimeout = 0;
+        //        com.Parameters.Clear();
+        //        com.Parameters.Add(new SqlParameter("idProfesional", profesional.id));
+        //        com.Parameters.Add(new SqlParameter("idEspecialidad", profesional.especialidad));
+        //        try
+        //        {
+        //            conn.Open();
+        //            com.ExecuteScalar();
+        //            conn.Close();
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            conn.Close();
+        //            throw ex;
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+
+        //        throw;
+        //    }
+        //}
+
+
+
         public void InsetarProfesional(ProfesionalModel profesional)
         {
             try
             {
+                
                 SqlConnection conn = dBAccess.GetConnection();
                 SqlCommand com = new SqlCommand("dbo.SP_Insertar_Profesional", conn);
                 com.CommandType = CommandType.StoredProcedure;
@@ -111,7 +173,11 @@ namespace ProyectoHipocrates
                 com.Parameters.Add(new SqlParameter("numeroDocumento", profesional.numeroDocumento));
                 com.Parameters.Add(new SqlParameter("primerApellido", profesional.primerApellido));
                 com.Parameters.Add(new SqlParameter("primerNombre", profesional.primerNombre));
-                com.Parameters.Add(new SqlParameter("telefono", profesional.telefono));
+
+                var parametro = new SqlParameter("telefono", SqlDbType.VarChar);
+                parametro.Value = (object)profesional.telefono ?? DBNull.Value;
+                com.Parameters.Add(parametro);
+
                 com.Parameters.Add(new SqlParameter("tipoTelefono", profesional.tipoTelefono));
                 com.Parameters.Add(new SqlParameter("usuarioCrea", "AutoGenerado"));
                 com.Parameters.Add(new SqlParameter("usuarioModi", "AutoGenerado"));
@@ -135,21 +201,10 @@ namespace ProyectoHipocrates
             }
         }
 
+        
+
     }
 
-    public class DBAcces
-    {
-        private SqlConnection con;
 
-        public SqlConnection GetConnection()
-        {
-            string sqlcon = "Data Source=localhost;" +
-                            "Initial Catalog=KLINICOS_CENTRAL;" +
-                            "persist security info = True;" +
-                            "Integrated Security=SSPI;";
-            this.con = new SqlConnection(sqlcon);
-            return this.con;
-        }
-    }
 
 }

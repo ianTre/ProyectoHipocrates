@@ -1,9 +1,14 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Configuration;
+using System.IO;
 using System.Linq;
+using System.Net;
 using System.Web;
+using System.Xml;
 
 namespace ProyectoHipocrates.Models
 {
@@ -67,20 +72,7 @@ namespace ProyectoHipocrates.Models
 
         [Display(Name = "Vigente")]
         public bool vigente { get; set; }
-
-        [NotMapped]
-        [Display(Name = "Especialidad/es")]
-        public virtual Int32[] idEspecialidad_array { get; set; }
-
-        [NotMapped]
-        public string nombresEspecialidades
-        {
-            get
-            { return this.especialidades.Select(x => x.nombre).Aggregate((x, y) => string.Format("{0}, {1}", x, y)); }
-        }
-
-        public virtual List<Especialidad> especialidades { get; set; }
-
+        
         public String usuarioCrea { get; set; }
 
         public DateTime fechaCrea { get; set; }
@@ -93,7 +85,13 @@ namespace ProyectoHipocrates.Models
 
         public int index { get; set; }
 
+        public string nombreSisa { get; set; }
 
+        public string apellidoSisa { get; set; }
+
+        public string nombreEspecialidad { get; set; }
+
+        public Especialidad especialidad { get; set; }
 
         internal void Mokear()
         {
@@ -103,7 +101,6 @@ namespace ProyectoHipocrates.Models
             this.fechaCrea = DateTime.Now;
             this.fechaModi = DateTime.Now;
             int[] array = { 1, 2, 3 };
-            this.idEspecialidad_array = array;
             this.idSexo = 1;
             this.idTipoDocumento = 1;
             this.matricula = "5555";
@@ -116,24 +113,26 @@ namespace ProyectoHipocrates.Models
             this.usuarioCrea = "Yo";
             this.usuarioModi = "Yo";
             this.vigente = true;
+            this.nombreSisa = this.primerNombre;
+            this.apellidoSisa = this.primerApellido;
         }
 
         internal bool EsConsistente()
         {
-            
+
             bool correcto = true;
             this.email = String.IsNullOrEmpty(this.email) ? string.Empty : this.email;
             if (this.email.Length > 0 && (!this.email.Contains("@") || !this.email.Contains(".com")))
                 correcto = false;
-            if (this.matricula.Length < 1)
+            if (String.IsNullOrEmpty(this.matricula) || this.matricula.Length < 1)
                 correcto = false;
-            if (this.numeroDocumento.Length < 1)
+            if (String.IsNullOrEmpty(this.numeroDocumento) || this.numeroDocumento.Length < 1)
                 correcto = false;
             int integer;
             if (!int.TryParse(this.numeroDocumento, out integer))
                 correcto = false;
 
-            if (this.primerApellido.Length < 1 || this.primerNombre.Length < 1)
+            if (String.IsNullOrEmpty(this.primerApellido) || String.IsNullOrEmpty(this.primerNombre) || this.primerApellido.Length < 1 || this.primerNombre.Length < 1)
                 correcto = false;
 
             this.tipoTelefono = CaracteristicaTelefonica();
@@ -142,11 +141,44 @@ namespace ProyectoHipocrates.Models
             this.contactoObservaciones = String.IsNullOrEmpty(this.contactoObservaciones) ? string.Empty : this.contactoObservaciones;
             this.telefono = String.IsNullOrEmpty(this.telefono) ? string.Empty : this.telefono;
             
+            
+
             return correcto;
+        }
+
+        public void CargarDatosSisa()
+        {
+            try
+            {
+
+            
+            this.apellidoSisa = this.nombreSisa = String.Empty;
+            if (String.IsNullOrEmpty(this.numeroDocumento))
+                return;
+            XmlDocument response = Sisa.consultarSisa(this.numeroDocumento);
+            if(Object.Equals(null,response))
+            {
+                return;
+            }
+            else
+            {
+                this.nombreSisa = response.DocumentElement.GetElementsByTagName("nombre")[0].FirstChild.Value;
+                this.apellidoSisa = response.DocumentElement.GetElementsByTagName("apellido")[0].FirstChild.Value;
+            }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return;
+            }
         }
 
         private string CaracteristicaTelefonica()
         {
+            if(String.IsNullOrEmpty(this.telefono))
+            {
+                return string.Empty;
+            }
             var array = this.telefono.ToCharArray();
             int cantNum=0;
             foreach (char letra in array)
@@ -159,6 +191,45 @@ namespace ProyectoHipocrates.Models
             if (cantNum == 8)
                 return "TEP";
             return "CEL";
+        }
+    }
+
+    class Sisa
+    {
+        public static XmlDocument consultarSisa(String nroDoc)
+        {
+            string proxyUrl = ConfigurationManager.AppSettings["UrlProxy"];
+
+            string usrSisa = ConfigurationManager.AppSettings["UsrSisa"];
+            string passSisa = ConfigurationManager.AppSettings["PassSisa"];
+
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create("https://sisa.msal.gov.ar/sisa/services/rest/cmdb/obtener?nrodoc=" + nroDoc + "&usuario=" + usrSisa + "&clave=" + passSisa);
+            request.Method = "GET";
+            if (proxyUrl != "")
+                request.Proxy = new WebProxy(proxyUrl);
+            request.UserAgent = "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36";
+            request.AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip;
+            HttpWebResponse response;
+            try
+            {
+                response = (HttpWebResponse)request.GetResponse();
+            }
+            catch (Exception e)
+            {
+                return null;
+            }
+            string content = string.Empty;
+            using (Stream stream = response.GetResponseStream())
+            {
+                using (StreamReader sr = new StreamReader(stream))
+                {
+                    content = sr.ReadToEnd();
+                }
+            }
+            var xml = new XmlDocument();
+            xml.LoadXml(content);
+            xml.RemoveChild(xml.FirstChild);
+            return xml;
         }
     }
 }
