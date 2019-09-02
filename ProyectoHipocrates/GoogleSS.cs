@@ -9,8 +9,11 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading;
-using System.Web;
+using ProyectoHipocrates.Helpers;
+using Google.Apis.Http;
+using System.Net;
+using System.Net.Http;
+using System.Configuration;
 
 namespace ProyectoHipocrates
 {
@@ -21,22 +24,42 @@ namespace ProyectoHipocrates
         static readonly string SpreadsheetId = "1001t4b01_zRFTXnGQaLBz25_8ZbeV9-L_T08YAxUG6Y";
         static readonly string sheet = "Respuestasdeformulario";
         static SheetsService service;
-        Repositorio repo = new Repositorio();
+        static Repositorio repo = new Repositorio();
+        static Utils util;
 
         public GoogleSS()
         {
             try
             {
-
-
                 GoogleCredential credential;
                 using (var stream = new FileStream("client_secret.json", FileMode.Open, FileAccess.Read))
                 {
                     credential = GoogleCredential.FromStream(stream)
                         .CreateScoped(Scopes);
                 }
+                /*
+                WebProxy proxy = (WebProxy)WebRequest.DefaultWebProxy;
+                if (proxy.Address.AbsoluteUri != string.Empty)
+                {              
+                    // Create Google Sheets API service.
+                    service = new SheetsService(new BaseClientService.Initializer()
+                    {
+                        HttpClientInitializer = credential,
+                        ApplicationName = ApplicationName,
+                    });
+                }
+               else {
 
-                // Create Google Sheets API service.
+                    // Create Google Sheets API service.
+                    service = new SheetsService(new BaseClientService.Initializer()
+                    {
+                        HttpClientInitializer = credential,
+                        ApplicationName = ApplicationName,
+                        HttpClientFactory = new ProxySupportedHttpClientFactory()
+
+                    });
+                } */
+
                 service = new SheetsService(new BaseClientService.Initializer()
                 {
                     HttpClientInitializer = credential,
@@ -53,7 +76,33 @@ namespace ProyectoHipocrates
         }
 
 
-        public List<ProfesionalModel> ReadEntries()
+        public class ProxySupportedHttpClientFactory : HttpClientFactory
+        {
+            protected override HttpMessageHandler CreateHandler(CreateHttpClientArgs args)
+            {
+                string proxyServerAddress = ConfigurationManager.AppSettings[ "proxyServerAddress" ];
+                string proxyServerPort = ConfigurationManager.AppSettings[ "proxyServerPort" ];
+
+                WebProxy proxy = new WebProxy
+                {
+                    Address = new Uri("http://" + proxyServerAddress + ":" + proxyServerPort),
+                    UseDefaultCredentials = true
+                };
+
+                var webRequestHandler = new WebRequestHandler()
+                {
+                    UseProxy = true,
+                    Proxy = proxy,
+                    UseCookies = false
+                };
+                return webRequestHandler;
+            }
+        }
+
+
+
+
+        public List<ProfesionalModel> ReadEntries(List<Especialidad> especialidades)
         {
             try
             {
@@ -67,14 +116,14 @@ namespace ProyectoHipocrates
                 IList<IList<object>> values = response.Values;
                 if (values != null && values.Count > 0)
                 {
-                    var lEs = repo.ObtenerEspecialidades();
+                    //var lEs = repo.ObtenerEspecialidades();
                     int i = 0;
                     foreach (var row in values)
                     {
                         i++;
                         if (values[0] == row)
                             continue;
-                        ProfesionalModel profesional = BindearProfesional(row, i, lEs);
+                        ProfesionalModel profesional = BindearProfesional(row, i, especialidades);
                         if (!Object.Equals(null, profesional))
                             lista.Add(profesional);
                     }
@@ -87,7 +136,6 @@ namespace ProyectoHipocrates
             }
             catch (Exception ex)
             {
-
                 throw ex;
             }
         }
@@ -120,7 +168,8 @@ namespace ProyectoHipocrates
         {
             try
             {
-
+                if (Object.Equals(util,null))
+                    util = new Utils();
 
                 const int CANTIDAD_CAMPOS = 12;
                 ProfesionalModel model = new ProfesionalModel();
@@ -159,8 +208,9 @@ namespace ProyectoHipocrates
 
                 model.matricula = campoMatricula;
                 model.numeroDocumento = campoDni;
-                model.primerApellido = campoApellido;
-                model.primerNombre = campoNombre;
+                model.primerApellido = util.quitarSoloAcentos(campoApellido);
+                model.primerNombre = util.quitarSoloAcentos(campoNombre.Split(' ').First());
+                model.otrosNombres = util.quitarSoloAcentos(campoNombre.Contains(' ') ? campoNombre.Remove(0, model.primerNombre.Length + 1) : String.Empty);
                 model.telefono = campoTelefono;
                 model.vigente = true;
                 model.CargarDatosSisa();
@@ -177,12 +227,12 @@ namespace ProyectoHipocrates
             }
         }
 
+
+
         private static Especialidad MachearEspecialidad(string especialidad, List<Especialidad> lstEspecialidad)
         {
             try
             {
-
-
 
                 Especialidad entidad;
                 especialidad = especialidad.Trim().ToLower();
@@ -191,7 +241,7 @@ namespace ProyectoHipocrates
                 {
                     // no deberia ser posible que elijan especialidades que no existan 
 
-                    throw new Exception("Se selecciono una especialidad inexistente en la base de datos");
+                    throw new Exception("Se seleccionó una especialidad inexistente en la base de datos");
 
 
                     //cambiar por : dejar vacio el combo box y seleccionar una especialidad en la vista.

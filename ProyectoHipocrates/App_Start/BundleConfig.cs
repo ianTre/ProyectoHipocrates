@@ -8,7 +8,7 @@ namespace ProyectoHipocrates
         // Para obtener más información sobre las uniones, visite https://go.microsoft.com/fwlink/?LinkId=301862
         public static void RegisterBundles(BundleCollection bundles)
         {
-            bundles.Add(new ScriptBundle("~/bundles/jquery").Include(
+            bundles.Add(new ScriptBundle("~/bundles/jquery").Include(                        
                         "~/Scripts/jquery-{version}.js"));
 
             bundles.Add(new ScriptBundle("~/bundles/jqueryval").Include(
@@ -24,8 +24,20 @@ namespace ProyectoHipocrates
                       "~/Scripts/respond.js"));
 
             bundles.Add(new StyleBundle("~/Content/css").Include(
-                      "~/Content/bootstrap.css",
-                      "~/Content/site.css"));
+                      "~/Content/bootstrap.min.css",
+                      "~/Content/Site.css"));
+
+            bundles.Add(new StyleBundle("~/Content/fonts").Include(
+                      "~/Content/font-awesome.min.css"));
+
+            bundles.Add(new StyleBundle("~/Content/toastr")
+                    .Include("~/Content/toastr.min.css"));
+
+            bundles.Add(new ScriptBundle("~/bundles/toastr")
+                    .Include("~/Scripts/toastr.js"));
+
+            bundles.Add(new ScriptBundle("~/bundles/jquery.unobtrusive-ajax")
+                    .Include("~/Scripts/jquery.unobtrusive-ajax.min.js"));
         }
     }
 }

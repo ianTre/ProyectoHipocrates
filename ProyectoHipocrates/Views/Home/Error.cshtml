@@ -1,14 +1,24 @@
-﻿
-@{
+﻿@{
     ViewBag.Title = "Error";
 }
-
-<h2>Error</h2>
-
-@{
-    if(ViewBag.Message != null)
-    { 
-        <p>Mensaje del controlador :  @ViewBag.Message</p>
-    }
-}
-
+<div class="container container-top">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card-group">
+                <div class="card p-4">
+                    <div class="card-body">
+                        <h1>Error</h1>
+                        <h2 class="text-muted">Mensaje del controlador : @ViewBag.Message</h2>
+                        <div class="form-group ">
+                            <div class="col-lg-10">
+                                @Html.ActionLink("Volver Atrás", "Index", null, new { @class = "btn btn-default" })
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@Styles.Render("~/Content/fonts")
+@Scripts.Render("~/bundles/bootstrap")

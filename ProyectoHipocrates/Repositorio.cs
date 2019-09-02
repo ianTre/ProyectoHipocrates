@@ -150,7 +150,7 @@ namespace ProyectoHipocrates
 
 
 
-        public void InsetarProfesional(ProfesionalModel profesional)
+        public void InsertarProfesional(ProfesionalModel profesional)
         {
             try
             {

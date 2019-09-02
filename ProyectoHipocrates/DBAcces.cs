@@ -17,7 +17,7 @@ namespace ProyectoHipocrates
             //                "Initial Catalog=KLINICOS_CENTRAL;" +
             //                "persist security info = True;" +
             //                "Integrated Security=SSPI;";
-            this.con = new SqlConnection(WebConfigurationManager.ConnectionStrings["DefoultConection"].ConnectionString);
+            this.con = new SqlConnection(WebConfigurationManager.ConnectionStrings["DefaultConection"].ConnectionString);
             return this.con;
         }
 

@@ -1,9 +1,9 @@
-﻿
-@{
+﻿@{
     ViewBag.Title = "ReplicaCentral";
 }
-
 <h2>Replicar en Instancias</h2>
-
 <input type="button" value="Replicar" onclick="location.href='@Url.Action("Replica", "Home")'" />
+@Html.ActionLink("Volver Atrás", "Index", null, new { @class = "btn btn-default" })
+
+
 

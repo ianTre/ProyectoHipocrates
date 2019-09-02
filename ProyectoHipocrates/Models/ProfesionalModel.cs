@@ -9,6 +9,7 @@ using System.Linq;
 using System.Net;
 using System.Web;
 using System.Xml;
+using System.Globalization;
 
 namespace ProyectoHipocrates.Models
 {
@@ -53,17 +54,19 @@ namespace ProyectoHipocrates.Models
         [Display(Name = "Tipo de teléfono")]
         public String tipoTelefono { get; set; }
 
-        [StringLength(50)]
-        [Display(Name = "Teléfono")]
+        [DataType(DataType.PhoneNumber)]
         [RegularExpression("^[0-9-\\s\\+]{8,20}$", ErrorMessage = "Formato de teléfono inválido")]
+        //[RegularExpression("/(? ([0 - 9]{2}))? ([ .-]?)([0 - 9]{4})2([0 - 9]{4})/", ErrorMessage = "Formato de teléfono inválido")]
+
         public String telefono { get; set; }
 
         [Display(Name = "Observaciones de contacto")]
         public String contactoObservaciones { get; set; }
 
-        [Display(Name = "E-mail")
-            , DataType(DataType.EmailAddress)]
-        [RegularExpression("^(?(\")(\".+?(?<!\\\\)\"@)|(([0-9a-z]((\\.(?!\\.))|[-!#\\$%&'\\*\\+/=\\?\\^`{}|~\\w])*)(?<=[0-9a-z])@))(?([)([(\\d{1,3}.){3}\\d{1,3}])|(([0-9a-z][-0-9a-z]*[0-9a-z]*.)+[a-z0-9][-a-z0-9]{0,22}[a-z0-9]))$", ErrorMessage = "Formato de email inválido")]
+        [Display(Name = "E-mail")]
+        //  , DataType(DataType.EmailAddress)]
+        [EmailAddress(ErrorMessage = "Formato de email inválido")]
+        //[RegularExpression("^(?(\")(\".+?(?<!\\\\)\"@)|(([0-9a-z]((\\.(?!\\.))|[-!#\\$%&'\\*\\+/=\\?\\^`{}|~\\w])*)(?<=[0-9a-z])@))(?([)([(\\d{1,3}.){3}\\d{1,3}])|(([0-9a-z][-0-9a-z]*[0-9a-z]*.)+[a-z0-9][-a-z0-9]{0,22}[a-z0-9]))$", ErrorMessage = "Formato de email inválido")]
         public String email { get; set; }
 
         [StringLength(30)]
@@ -140,11 +143,11 @@ namespace ProyectoHipocrates.Models
             this.idSexo = 1;
             this.contactoObservaciones = String.IsNullOrEmpty(this.contactoObservaciones) ? string.Empty : this.contactoObservaciones;
             this.telefono = String.IsNullOrEmpty(this.telefono) ? string.Empty : this.telefono;
-            
-            
 
             return correcto;
         }
+
+
 
         public void CargarDatosSisa()
         {
@@ -162,8 +165,8 @@ namespace ProyectoHipocrates.Models
             }
             else
             {
-                this.nombreSisa = response.DocumentElement.GetElementsByTagName("nombre")[0].FirstChild.Value;
-                this.apellidoSisa = response.DocumentElement.GetElementsByTagName("apellido")[0].FirstChild.Value;
+                this.nombreSisa = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(response.DocumentElement.GetElementsByTagName("nombre")[0].FirstChild.Value.ToLower());
+                this.apellidoSisa = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(response.DocumentElement.GetElementsByTagName("apellido")[0].FirstChild.Value.ToLower());
             }
             }
             catch (Exception ex)
@@ -192,6 +195,9 @@ namespace ProyectoHipocrates.Models
                 return "TEP";
             return "CEL";
         }
+
+
+
     }
 
     class Sisa

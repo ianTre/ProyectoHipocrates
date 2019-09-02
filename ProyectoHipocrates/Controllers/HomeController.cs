@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using ProyectoHipocrates.Models;
+using ProyectoHipocrates.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -10,6 +11,8 @@ using System.Threading;
 using System.Web;
 using System.Web.Mvc;
 using System.Xml;
+using System.Globalization;
+using System.Text;
 
 namespace ProyectoHipocrates.Controllers
 {
@@ -22,10 +25,22 @@ namespace ProyectoHipocrates.Controllers
 
         public ActionResult Index()
         {
-            lstNuevosProf = spreed.ReadEntries();
+            List<Especialidad> lstEsp = repo.ObtenerEspecialidades();
+            lstNuevosProf = spreed.ReadEntries(lstEsp);
+
+
             Session.Add("LstProfesionales", lstNuevosProf);
             
             Session.Add("indice", 0);
+            ViewBag.lstEsp = lstEsp.ToList().Select(x => new SelectListItem
+                            {
+                                Value = x.id.ToString(),
+                                Text = x.nombre,
+                                Selected = (x.nombre == lstNuevosProf .especialidad.nombre)
+                            });
+            // new SelectList (repo.ObtenerEspecialidades(), "codigo", "nombre", lstNuevosProf[0].especialidad.nombre);
+            //ViewBag.especialidades = repo.ObtenerEspecialidades();
+
 
             if (lstNuevosProf.Count > 0)
             {
@@ -38,40 +53,42 @@ namespace ProyectoHipocrates.Controllers
             }
         }
 
+        
+
+
         [HttpPost]
         public ActionResult Index(ProfesionalModel profesional)
         {
             try
             {
-                int row = 34;
+
                 string errores;
 
-
-                if (profesional.EsConsistente())
+                if (profesional.EsConsistente() && ModelState.IsValid)
                 {
                     if ((errores = ProfesionalExistente(profesional)).Length == 0)
                     {
-                        repo.InsetarProfesional(profesional);
+                        repo.InsertarProfesional(profesional);
 
                         List<IList<object>> matrix = new List<IList<object>>();
                         IList<object> fila = new List<object>();
                         fila.Add("SI");
                         matrix.Add(fila);
                         spreed.WriteInGoogleSS(matrix, profesional.index);
-
                     }
-
                     else
                     {
-                        ViewBag.Message = "Ya existia un profesional con ese numero de documento";
+                        this.AddToastMessage("", errores, ToastType.Error);
+                        ViewBag.lstEsp =  repo.ObtenerEspecialidades().ToList();
+                        return View("Index");
                     }
                 }
-                /* Agregar logica para que vuelva  a la pantalla y muestre el error en caso de que no sea consistente.
                 else
                 {
-
+                    this.AddToastMessage("", "Datos de Profesional Inconsistentes", ToastType.Error);
+                    return View("Index");
                 }
-                */
+
                 int indice = (int)Session["indice"];
                 Session["indice"] = ++indice;
 
@@ -84,9 +101,7 @@ namespace ProyectoHipocrates.Controllers
                 }
                 else
                 {
-                    return View("ReplicaCentral");
-                    repo.EjecutarJob("BackUpJob");
-
+                    return View("ReplicaCentral");                    
                 }
             }
             catch (Exception ex)
@@ -95,6 +110,22 @@ namespace ProyectoHipocrates.Controllers
                 return View("Error");
             }
         }
+
+
+        public ActionResult saltearProfesional()
+        {
+
+            List<IList<object>> matrix = new List<IList<object>>();
+            IList<object> fila = new List<object>();
+            int indice = (int)Session["indice"];
+            Session["indice"] = ++indice;
+            fila.Add("NO");
+            matrix.Add(fila);
+            spreed.WriteInGoogleSS(matrix, profesional.index);
+
+            return RedirectToAction("Iteracion", lstNuevosProf[indice]);
+        }
+
 
         public ActionResult Iteracion(ProfesionalModel profesional)
         {
@@ -107,16 +138,13 @@ namespace ProyectoHipocrates.Controllers
             try
             {
 
-
-                repo.EjecutarJob("BackUpJob");
-                Thread.Sleep(20000);
                 repo.EjecutarJob("ReplicaSnapshotGeneral");
 
-                Thread.Sleep(20000);
+                Thread.Sleep(60000);
                 lstNuevosProf = (List<ProfesionalModel>)Session["LstProfesionales"];
                 AgregarEspecialidades(lstNuevosProf);
-                ViewBag.Message = "Finalizo la replicacion y la carga de especialidad correctamente.";
-                return View("Error");
+                this.AddToastMessage("", "Finalizó la replicación y la carga de especialidad correctamente.", ToastType.Success);               
+                return View("Index");
 
             }
             catch (Exception ex)
@@ -135,6 +163,8 @@ namespace ProyectoHipocrates.Controllers
                 try
                 {
                     repos.AgregarPersonaProfesionalEspecialidad(profesional);
+                    this.AddToastMessage("", "Profesional agregado con Especialidad", ToastType.Success);
+
                 }
                 catch (Exception ex)
                 {
@@ -149,38 +179,47 @@ namespace ProyectoHipocrates.Controllers
 
         private string ProfesionalExistente(ProfesionalModel nuevoProfesional) 
         {
-
             try
             {
                 List<ProfesionalModel> lstProfesionales = repo.GetProfesionales();
-                if (lstProfesionales.Exists(x => x.numeroDocumento == nuevoProfesional.numeroDocumento))
-                    return "Ya existe un profesional con el mismo numero de documento";
+                if (lstProfesionales.Exists(x => x.numeroDocumento == nuevoProfesional.numeroDocumento)) {
+                    //this.AddToastMessage("", "Ya existe un profesional con el mismo número de documento", ToastType.Error);
+                    return "Ya existe un profesional con el mismo número de documento";
+                }                                 
                 if (lstProfesionales.Exists(x => x.primerApellido.Trim().ToLower() == nuevoProfesional.primerApellido.Trim().ToLower() && x.primerNombre.ToLower().Trim() == nuevoProfesional.primerNombre.ToLower().Trim()))
-                    return "Ya existe un profesional con el mismo nombre y el mismo apellido";
+                {
+                    //this.AddToastMessage("", "Ya existe un profesional con el mismo nombre y el mismo apellido", ToastType.Error);
+                    return "Ya existe un profesional con el mismo nombre y/o apellido";
+                }
+
                 if (lstProfesionales.Exists(x => x.matricula == nuevoProfesional.matricula))
-                    return "Ya existe un profesional con el mismo numero de matricula";
+                {
+                    //this.AddToastMessage("", "Ya existe un profesional con el mismo numero de matricula", ToastType.Error);
+                    return "Ya existe un profesional con el mismo número de matrícula";
+                }
+
+                if (normalizar(nuevoProfesional.apellidoSisa.ToLower()) == normalizar(nuevoProfesional.primerApellido.ToLower()) && (normalizar(nuevoProfesional.nombreSisa).Contains(normalizar(nuevoProfesional.primerNombre.ToLower().Trim())) ||  normalizar(nuevoProfesional.nombreSisa).Contains(normalizar(nuevoProfesional.otrosNombres.ToLower().Trim()))))
+                    return "Datos Distintos de SISA"; 
+
                 return string.Empty;
             }
             catch (Exception ex)
             {
-
                 throw ex;
             }
         }
 
-        public ActionResult About()
+        public string normalizar(string palabra)
         {
-            ViewBag.Message = "Your application description page.";
-
-            return View();
+            return Encoding.UTF8.GetString(Encoding.GetEncoding("ISO-8859-9").GetBytes(palabra));
         }
+
 
         public ActionResult Contact()
         {
-            ViewBag.Message = "Your contact page.";
-
-            return View();
+            return View("Contact");
         }
+
     }
 
     
