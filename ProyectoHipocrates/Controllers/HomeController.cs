@@ -161,8 +161,8 @@ namespace ProyectoHipocrates.Controllers
         {
             try
             {
-                //repo.ReplicarEnInstancias();
-                //Thread.Sleep(60000);
+                repo.ReplicarEnInstancias();
+                Thread.Sleep(60000);
 
                 //Agregar para que al volver a entrar si Session["LstProfesionales"] está vacío, salga. Jaja, Saludos.
                 
