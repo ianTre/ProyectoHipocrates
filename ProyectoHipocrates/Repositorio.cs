@@ -11,8 +11,6 @@ namespace ProyectoHipocrates
 {
     public class Repositorio
     {
-
-
         DBAcces dBAccess { get; set; }
         private List<ProfesionalModel> profesionales { get; set; }
         public List<ProfesionalModel> Especialidades { get; set; }
@@ -51,27 +49,34 @@ namespace ProyectoHipocrates
             }
         }
 
-
-        public void EjecutarJob(String nombreJob)
+        public void ReplicarEnInstancias()
         {
-            SqlConnection conn = dBAccess.GetConnection();
-            SqlCommand com = new SqlCommand("msdb.dbo.sp_start_job", conn);
-            com.CommandType = CommandType.StoredProcedure;
-            com.CommandTimeout = 0;
-            com.Parameters.Clear();
-            com.Parameters.Add(new SqlParameter("job_name", nombreJob));
             try
             {
-                conn.Open();
-                com.ExecuteScalar();
-                conn.Close();
+                SqlConnection conn = dBAccess.GetConnection();
+                SqlCommand com = new SqlCommand("General.ReplicaSnapshotGeneral", conn);
+                com.CommandType = CommandType.StoredProcedure;
+                com.CommandTimeout = 0;
+                com.Parameters.Clear();
+                try
+                {
+                    conn.Open();
+                    com.ExecuteScalar();
+                    conn.Close();
+                }
+                catch (Exception ex)
+                {
+                    conn.Close();
+                    throw ex;
+                }
             }
             catch (Exception ex)
             {
-                conn.Close();
+
                 throw ex;
             }
         }
+        
 
 
         public List<ProfesionalModel> ObtenerProfesionales()
@@ -160,25 +165,24 @@ namespace ProyectoHipocrates
                 com.CommandType = CommandType.StoredProcedure;
                 com.CommandTimeout = 0;
                 com.Parameters.Clear();
-                com.Parameters.Add(new SqlParameter("contactoObsevaciones", profesional.contactoObservaciones));
-                com.Parameters.Add(new SqlParameter("email", profesional.email));
-                //com.Parameters.Add(new SqlParameter("DescripcionLarga", profesional.especialidades));
+                com.Parameters.Add(new SqlParameter("contactoObsevaciones", string.IsNullOrEmpty(profesional.contactoObservaciones) ? (object)DBNull.Value : profesional.contactoObservaciones));
+                com.Parameters.Add(new SqlParameter("email", string.IsNullOrEmpty(profesional.email) ? (object)DBNull.Value : profesional.email));
+                
                 com.Parameters.Add(new SqlParameter("fechaCrea", DateTime.Now));
                 com.Parameters.Add(new SqlParameter("fechaModi", DateTime.Now));
-                //com.Parameters.Add(new SqlParameter("DescripcionLarga", profesional.idEspecialidad_array));
+                
                 com.Parameters.Add(new SqlParameter("idSexo", profesional.idSexo));
                 com.Parameters.Add(new SqlParameter("idTipoDocumento", profesional.idTipoDocumento));
                 com.Parameters.Add(new SqlParameter("matricula", profesional.matricula));
-                //com.Parameters.Add(new SqlParameter("DescripcionLarga", profesional.nombresEspecialidades));
+                
                 com.Parameters.Add(new SqlParameter("numeroDocumento", profesional.numeroDocumento));
                 com.Parameters.Add(new SqlParameter("primerApellido", profesional.primerApellido));
                 com.Parameters.Add(new SqlParameter("primerNombre", profesional.primerNombre));
+                com.Parameters.Add(new SqlParameter("otrosNombres", string.IsNullOrEmpty(profesional.otrosNombres) ? (object)DBNull.Value : profesional.otrosNombres));
 
-                var parametro = new SqlParameter("telefono", SqlDbType.VarChar);
-                parametro.Value = (object)profesional.telefono ?? DBNull.Value;
-                com.Parameters.Add(parametro);
+                com.Parameters.Add(new SqlParameter("telefono", string.IsNullOrEmpty(profesional.telefono) ? (object)DBNull.Value : profesional.telefono));
+                com.Parameters.Add(new SqlParameter("tipoTelefono", string.IsNullOrEmpty(profesional.tipoTelefono) ? (object)DBNull.Value : profesional.tipoTelefono));
 
-                com.Parameters.Add(new SqlParameter("tipoTelefono", profesional.tipoTelefono));
                 com.Parameters.Add(new SqlParameter("usuarioCrea", "AutoGenerado"));
                 com.Parameters.Add(new SqlParameter("usuarioModi", "AutoGenerado"));
                 com.Parameters.Add(new SqlParameter("vigente", true));
@@ -188,16 +192,15 @@ namespace ProyectoHipocrates
                     com.ExecuteScalar();
                     conn.Close();
                 }
-                catch (Exception ex)
+                catch (SqlException ex)
                 {
                     conn.Close();
-                    throw ex;
+                    throw new Exception (ex.Message);
                 }
             }
             catch (Exception ex)  
             {
-
-                throw;
+                throw new Exception(ex.Message);
             }
         }
 

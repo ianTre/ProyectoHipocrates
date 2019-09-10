@@ -37,6 +37,9 @@ namespace ProyectoHipocrates
                     credential = GoogleCredential.FromStream(stream)
                         .CreateScoped(Scopes);
                 }
+
+                //Ver luego para el uso con proxy.
+
                 /*
                 WebProxy proxy = (WebProxy)WebRequest.DefaultWebProxy;
                 if (proxy.Address.AbsoluteUri != string.Empty)
@@ -116,7 +119,6 @@ namespace ProyectoHipocrates
                 IList<IList<object>> values = response.Values;
                 if (values != null && values.Count > 0)
                 {
-                    //var lEs = repo.ObtenerEspecialidades();
                     int i = 0;
                     foreach (var row in values)
                     {

@@ -126,7 +126,7 @@ namespace ProyectoHipocrates
                 string conectionString = ObtenerBase(profesional.Establecimiento);
                 if (String.IsNullOrEmpty(conectionString))
                 {
-                    throw new Exception("no se encuentra la base");
+                    throw new Exception("No se encuentra la base especificada");
                 }
                 if (!ExisteEspecialidadYProfesional(profesional, conectionString))
                 {
@@ -164,8 +164,10 @@ namespace ProyectoHipocrates
                 returner = false;
                 
             }
+            
             if(returner)
                 profesional.id = prof.id;
+                    
             return returner;
 
         }
@@ -239,6 +241,9 @@ namespace ProyectoHipocrates
                     break;
                 case "Eizaguirre":
                     nombreBase = "EizaguirreConection";
+                    break;
+                case "Policlinico":
+                    nombreBase = "PoliclinicoConection";
                     break;
                 default:
                     nombreBase = "";

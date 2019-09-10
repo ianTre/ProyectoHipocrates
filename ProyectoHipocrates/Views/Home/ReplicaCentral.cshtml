@@ -2,8 +2,31 @@
     ViewBag.Title = "ReplicaCentral";
 }
 <h2>Replicar en Instancias</h2>
-<input type="button" value="Replicar" onclick="location.href='@Url.Action("Replica", "Home")'" />
-@Html.ActionLink("Volver Atrás", "Index", null, new { @class = "btn btn-default" })
+<input type="button" value="Replicar" id="replica" class="btn btn-primary" onclick="location.href='@Url.Action("Replica", "Home")'" />
+@Html.ActionLink("Volver Atras", "Nuevo", null, new { @class = "btn btn-default" })
 
+<script>
+    $("#replica").on("click", function () {
+        
+        toastr.options = {
+            "closeButton": false,
+            "debug": false,
+            "newestOnTop": false,
+            "progressBar": true,
+            "positionClass": "toast-top-right",
+            "preventDuplicates": false,
+            "onclick": null,
+            "showDuration": "60000",
+            "hideDuration": "60000",
+            "timeOut": "60000",
+            "extendedTimeOut": "60000",
+            "showEasing": "swing",
+            "hideEasing": "linear",
+            "showMethod": "fadeIn",
+            "hideMethod": "fadeOut"
+        }
 
+        toastr.info("","Replicando, por favor espere...", { timeOut: 60000 })
+    });
+</script>
 

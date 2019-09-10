@@ -189,6 +189,10 @@
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
     <Content Include="Global.asax" />
     <Content Include="Content\Site.css" />
+    <Content Include="Images\login_background.jpg" />
+    <Content Include="Images\Logo.jpg" />
+    <Content Include="Images\logo.png" />
+    <Content Include="Images\logo_horiz_PNG.png" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
     <Content Include="ApplicationInsights.config">
@@ -233,10 +237,11 @@
     <Content Include="Views\Shared\Error.cshtml" />
     <Content Include="Views\Shared\_Layout.cshtml" />
     <Content Include="Views\Home\About.cshtml" />
-    <Content Include="Views\Home\Index.cshtml" />
+    <Content Include="Views\Home\Nuevo.cshtml" />
     <Content Include="Views\Home\Error.cshtml" />
     <Content Include="Views\Home\ReplicaCentral.cshtml" />
     <Content Include="Views\Shared\_Toastr.cshtml" />
+    <Content Include="Views\Home\ErrorFin.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

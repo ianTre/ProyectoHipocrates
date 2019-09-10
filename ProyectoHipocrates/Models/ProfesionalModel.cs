@@ -21,9 +21,7 @@ namespace ProyectoHipocrates.Models
 
         [Required]
         [Display(Name = "Tipo de documento")]
-        public Int32 idTipoDocumento { get; set; }
-
-        
+        public Int32 idTipoDocumento { get; set; }        
 
         [Required]
         [StringLength(8)]
@@ -32,9 +30,7 @@ namespace ProyectoHipocrates.Models
 
         [Required]
         [Display(Name = "Sexo")]
-        public Int32 idSexo { get; set; }
-
-        
+        public Int32 idSexo { get; set; }        
 
         [Required]
         [StringLength(100)]
@@ -56,7 +52,6 @@ namespace ProyectoHipocrates.Models
 
         [DataType(DataType.PhoneNumber)]
         [RegularExpression("^[0-9-\\s\\+]{8,20}$", ErrorMessage = "Formato de teléfono inválido")]
-        //[RegularExpression("/(? ([0 - 9]{2}))? ([ .-]?)([0 - 9]{4})2([0 - 9]{4})/", ErrorMessage = "Formato de teléfono inválido")]
 
         public String telefono { get; set; }
 
@@ -64,9 +59,7 @@ namespace ProyectoHipocrates.Models
         public String contactoObservaciones { get; set; }
 
         [Display(Name = "E-mail")]
-        //  , DataType(DataType.EmailAddress)]
         [EmailAddress(ErrorMessage = "Formato de email inválido")]
-        //[RegularExpression("^(?(\")(\".+?(?<!\\\\)\"@)|(([0-9a-z]((\\.(?!\\.))|[-!#\\$%&'\\*\\+/=\\?\\^`{}|~\\w])*)(?<=[0-9a-z])@))(?([)([(\\d{1,3}.){3}\\d{1,3}])|(([0-9a-z][-0-9a-z]*[0-9a-z]*.)+[a-z0-9][-a-z0-9]{0,22}[a-z0-9]))$", ErrorMessage = "Formato de email inválido")]
         public String email { get; set; }
 
         [StringLength(30)]
@@ -137,37 +130,38 @@ namespace ProyectoHipocrates.Models
 
             if (String.IsNullOrEmpty(this.primerApellido) || String.IsNullOrEmpty(this.primerNombre) || this.primerApellido.Length < 1 || this.primerNombre.Length < 1)
                 correcto = false;
+            if(String.IsNullOrEmpty(this.nombreEspecialidad))
+                correcto = false;
+            if (Object.Equals(this.especialidad, null))
+                correcto = false;
 
+            this.otrosNombres = String.IsNullOrEmpty(this.otrosNombres) ? string.Empty : this.otrosNombres;
             this.tipoTelefono = CaracteristicaTelefonica();
             this.idTipoDocumento = (integer > 10000000 && integer < 99000000) ? 1 : 4; // 1 = DNI , 4= Pasaporte
-            this.idSexo = 1;
             this.contactoObservaciones = String.IsNullOrEmpty(this.contactoObservaciones) ? string.Empty : this.contactoObservaciones;
-            this.telefono = String.IsNullOrEmpty(this.telefono) ? string.Empty : this.telefono;
+            this.telefono = String.IsNullOrEmpty(this.telefono) ? string.Empty : this.telefono;            
 
             return correcto;
         }
-
-
 
         public void CargarDatosSisa()
         {
             try
             {
-
             
-            this.apellidoSisa = this.nombreSisa = String.Empty;
-            if (String.IsNullOrEmpty(this.numeroDocumento))
-                return;
-            XmlDocument response = Sisa.consultarSisa(this.numeroDocumento);
-            if(Object.Equals(null,response))
-            {
-                return;
-            }
-            else
-            {
-                this.nombreSisa = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(response.DocumentElement.GetElementsByTagName("nombre")[0].FirstChild.Value.ToLower());
-                this.apellidoSisa = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(response.DocumentElement.GetElementsByTagName("apellido")[0].FirstChild.Value.ToLower());
-            }
+                this.apellidoSisa = this.nombreSisa = String.Empty;
+                if (String.IsNullOrEmpty(this.numeroDocumento))
+                    return;
+                XmlDocument response = Sisa.consultarSisa(this.numeroDocumento);
+                if(Object.Equals(null,response))
+                {
+                    return;
+                }
+                else
+                {
+                    this.nombreSisa = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(response.DocumentElement.GetElementsByTagName("nombre")[0].FirstChild.Value.ToLower());
+                    this.apellidoSisa = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(response.DocumentElement.GetElementsByTagName("apellido")[0].FirstChild.Value.ToLower());
+                }
             }
             catch (Exception ex)
             {

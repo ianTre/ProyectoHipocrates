@@ -1,0 +1,258 @@
+﻿@model ProyectoHipocrates.Models.ProfesionalModel
+@{
+    ViewBag.Title = "Home Page";
+}
+
+<div class="jumbotron">
+    <img src="~/Images/logo_horiz_PNG.png" style="float: right;"/>
+    <h1>Nuevos profesionales</h1>
+    <p class="lead">Listado de profesionales para agregar a Klinicos central</p>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="ibox-content">
+            @using (Html.BeginForm("Nuevo", "Home"))
+            {
+                @Html.AntiForgeryToken()
+
+            <div class="form-horizontal">
+                @Html.ValidationSummary(true)
+                @Html.HiddenFor(model => model.id)
+                @Html.HiddenFor(model => model.fechaCrea)
+                @Html.HiddenFor(model => model.usuarioCrea)
+                @Html.HiddenFor(model => model.idSexo)
+
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.numeroDocumento, new { @class = "control-label col-md-2" })
+                    <div class="col-md-10">
+                        @Html.EditorFor(model => model.numeroDocumento, new { @class = "form-control" })
+                    </div>
+                    @Html.ValidationMessageFor(model => model.numeroDocumento, "", new { @class = "col-md-2" })
+
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.primerApellido, new { @class = "control-label col-md-2" })
+                    <div class="col-md-10">
+                        @Html.EditorFor(model => model.primerApellido, "", new { @class = "form-control" })
+                    </div>
+                    @Html.ValidationMessageFor(model => model.primerApellido, "", new { @class = "col-md-2" })
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(model => model.apellidoSisa, new { @class = "control-label col-md-2" })
+                    <div class="col-md-10">
+                        @Html.EditorFor(model => model.apellidoSisa, new { @class = "form-control" })
+                    </div>
+                    @Html.ValidationMessageFor(model => model.apellidoSisa, "", new { @class = "col-md-2" })
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.primerNombre, new { @class = "control-label col-md-2" })
+                    <div class="col-md-10">
+                        @Html.EditorFor(model => model.primerNombre, new { @class = "form-control" })
+                    </div>
+                    @Html.ValidationMessageFor(model => model.primerNombre, "", new { @class = "col-md-2" })
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(model => model.nombreSisa, new { @class = "control-label col-md-2" })
+                    <div class="col-md-10">
+                        @Html.EditorFor(model => model.nombreSisa, new { @class = "form-control" })
+                    </div>
+                    @Html.ValidationMessageFor(model => model.nombreSisa, "", new { @class = "col-md-2" })
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(model => model.otrosNombres, new { @class = "control-label col-md-2" })
+                    <div class="col-md-10">
+                        @Html.EditorFor(model => model.otrosNombres, new { @class = "form-control" })
+                    </div>
+                    @Html.ValidationMessageFor(model => model.otrosNombres, "", new { @class = "col-md-2" })
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.telefono, new { @class = "control-label col-md-2" })
+                    <div class="col-md-10">
+                        @Html.EditorFor(model => model.telefono, new { @class = "form-control" })
+                    </div>
+                    @Html.ValidationMessageFor(model => model.telefono, "", new { @class = "col-md-3" })
+
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(model => model.contactoObservaciones, new { @class = "control-label col-md-2" })
+                    <div class="col-md-10">
+                        @Html.EditorFor(model => model.contactoObservaciones)
+                    </div>
+                    @Html.ValidationMessageFor(model => model.contactoObservaciones, "", new { @class = "col-md-2" })
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(model => model.email, new { @class = "control-label col-md-2" })
+                    <div class="col-md-10">
+                        @Html.EditorFor(model => model.email, new { @class = "form-control" })
+                    </div>
+                    @Html.ValidationMessageFor(model => model.email, "", new { @class = "col-md-2" })
+
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(model => model.matricula, new { @class = "control-label col-md-2" })
+                    <div class="col-md-10">
+                        @Html.EditorFor(model => model.matricula, new { htmlAttributes = new { @onkeypress = "return esNumero(event)" } })
+                    </div>
+                    @Html.ValidationMessageFor(model => model.matricula, "", new { @class = "col-md-2" })
+                </div>
+                <div class="form-group">
+                    <label for="Especialidad" class="control-label col-lg-2">Especialidad:</label>
+                    <div class="col-md-10">
+                        @Html.DropDownList("nombreEspecialidad", new SelectList(ViewBag.lstEsp, "Text", "Text"))
+                    </div>
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(model => model.vigente, new { @class = "control-label col-md-2" })
+                    <div class="col-md-10">
+                        @Html.EditorFor(model => model.vigente)
+                    </div>
+                    @Html.ValidationMessageFor(model => model.vigente, "", new { @class = "col-md-2" })
+                </div>
+                @Html.HiddenFor(model => model.index)
+                <div class="form-group">
+                    <div class="col-md-offset-2 col-md-10">
+                        <input type="submit" value="Guardar" class="btn btn-primary" />
+                        @Html.HiddenFor(model => model.especialidad)
+
+                        @Html.ActionLink("Cancelar", "saltearProfesional", new { index = Model.index }, new { @class = "btn btn-default" })
+                    </div>
+                </div>
+            </div>
+            }
+        </div>
+    </div>
+</div>
+
+
+<script>
+
+    function eliminarDiacriticos(texto) {        
+        return texto.normalize('NFD').replace(/[\u0300-\u036f]/g, "").toLowerCase();
+    }
+
+    (function inicial() {
+        'use strict';
+        window.addEventListener('load', function () {
+
+
+
+            chequearInputsApellidos();
+
+            if (chequearInputsApellidos() == false) {
+                toastr.error('No coinciden Apellidos', { timeOut: 5000 });
+            }
+
+            chequearInputsNombres();
+            
+            if (chequearInputsNombres() == false) {
+                toastr.error('No coinciden Primer Nombre y/o Otros Nombres', { timeOut: 5000 });
+            }
+
+            chequearMatricula();
+
+            if (chequearMatricula() == false) {
+                toastr.error('Profesional no posee matricula', { timeOut: 5000 });
+            }
+
+            $('#primerApellido').on("focusout", chequearInputsApellidos);
+            $('#apellidoSisa').on("focusout", chequearInputsApellidos);
+            $('#primerNombre').on("focusout", chequearInputsNombres);
+            $('#nombreSisa').on("focusout", chequearInputsNombres);
+            $('#otrosNombres').on("focusout", chequearInputsNombres);
+            $('#matricula').on("focusout", chequearMatricula);
+
+        }, false);
+    })();
+
+
+    function chequearInputsApellidos() {
+
+        var prApellido = $('#primerApellido').val();
+        var siApellido = $('#apellidoSisa').val();
+
+        if (eliminarDiacriticos(prApellido) === eliminarDiacriticos(siApellido)) {
+
+            if (eliminarDiacriticos(prApellido) !== null && eliminarDiacriticos(prApellido) !== '' && eliminarDiacriticos(siApellido) !== null && eliminarDiacriticos(siApellido) !== ''){
+                $('#primerApellido').addClass('input-validation-valid').removeClass('input-validation-error')
+                $('#apellidoSisa').addClass('input-validation-valid').removeClass('input-validation-error')
+            } else {
+                $('#primerApellido').addClass('input-validation-error').removeClass('input-validation-valid')
+                $('#apellidoSisa').addClass('input-validation-error').removeClass('input-validation-valid')
+                return false;
+
+            }            
+        } else {
+            $('#primerApellido').addClass('input-validation-error').removeClass('input-validation-valid')
+            $('#apellidoSisa').addClass('input-validation-error').removeClass('input-validation-valid')
+
+            return false;
+        }        
+        return true;
+    }
+
+    function chequearInputsNombres() {
+
+        var prNombre = $('#primerNombre').val().trim();
+        var sisaPrNombre = ($('#nombreSisa').val().split(" ", 1)).toString();
+        var sisaOtNombre = $('#nombreSisa').val().indexOf(' ') > -1 ? $('#nombreSisa').val().split(/ (.+)/)[1] : $('#nombreSisa').val();
+        var otNombre = $('#otrosNombres').val();
+        
+        if ( eliminarDiacriticos(sisaPrNombre) == eliminarDiacriticos(prNombre) && (eliminarDiacriticos(sisaOtNombre) == eliminarDiacriticos(otNombre) || otNombre.length <= 0 || otNombre == null)) {
+
+            if (eliminarDiacriticos(prNombre) !== null && eliminarDiacriticos(prNombre) !== '' && eliminarDiacriticos($('#nombreSisa').val()) !== null && eliminarDiacriticos($('#nombreSisa').val()) !== '') {
+
+                $('#primerNombre').addClass('input-validation-valid').removeClass('input-validation-error')
+                $('#nombreSisa').addClass('input-validation-valid').removeClass('input-validation-error')
+                $('#otrosNombres').addClass('input-validation-valid').removeClass('input-validation-error')
+            } else {
+                $('#primerNombre').addClass('input-validation-error').removeClass('input-validation-valid')
+                $('#nombreSisa').addClass('input-validation-error').removeClass('input-validation-valid')
+                $('#otrosNombres').addClass('input-validation-error').removeClass('input-validation-valid')
+                return false;
+
+            } 
+
+
+        } else {
+
+            $('#primerNombre').addClass('input-validation-error').removeClass('input-validation-valid')
+            $('#nombreSisa').addClass('input-validation-error').removeClass('input-validation-valid')
+            $('#otrosNombres').addClass('input-validation-error').removeClass('input-validation-valid')
+
+            return false;
+        }
+        return true;
+
+    }
+
+    function chequearMatricula() {
+        var matricula = $('#matricula').val().trim();
+
+        if (matricula !== null && matricula !== '') {
+            $('#matricula').addClass('input-validation-valid').removeClass('input-validation-error')
+
+        } else {
+            $('#matricula').addClass('input-validation-error').removeClass('input-validation-valid')
+            return false;
+        }
+        return true;
+    }
+
+    function esNumero(evt) {
+        evt = (evt) ? evt : window.event;
+        var charCode = (evt.which) ? evt.which : evt.keyCode;
+        if (charCode > 31 && (charCode < 48 || charCode > 57)) {
+            return false;
+        }
+        return true;
+    }
+
+</script>
+
+
+
