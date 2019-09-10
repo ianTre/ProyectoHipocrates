@@ -1,0 +1,22 @@
+USE [klinicos]
+GO
+
+/****** Object:  StoredProcedure [dbo].[SP_OBTENER_PROFESIONALES]    Script Date: 10/9/2019 14:29:47 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+
+CREATE PROCEDURE [dbo].[SP_OBTENER_PROFESIONALES]
+AS
+BEGIN
+
+	SET NOCOUNT ON;
+
+	SELECT * FROM General.Profesionales
+END
+GO
+
