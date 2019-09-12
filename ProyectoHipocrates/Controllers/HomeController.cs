@@ -79,7 +79,6 @@ namespace ProyectoHipocrates.Controllers
             {
                 /*Coincidir especialidad en el listado de Especialidades*/
                 lstEsp = (List<Especialidad>)Session["lstEspecialidades"];
-                
                 profesional.especialidad = lstEsp.Where(x => x.nombre == profesional.nombreEspecialidad).ToList().FirstOrDefault();
 
                 string errores;
@@ -108,7 +107,6 @@ namespace ProyectoHipocrates.Controllers
                     else
                     {
                         this.AddToastMessage("", errores, ToastType.Error);//salteo 
-                       
                         return RedirectToAction("saltearProfesional", profesional.index);
                     }
                 }
@@ -117,7 +115,7 @@ namespace ProyectoHipocrates.Controllers
                     this.AddToastMessage("", "Datos de Profesional Inconsistentes", ToastType.Error);
                     return RedirectToAction("Nuevo");
                 }
-
+                ((List<ProfesionalModel>)Session["LstProfesionales"]).Where(x => x.index == profesional.index).ToList().FirstOrDefault().vigente = true;
                 return RedirectToAction("EscribirEnGoogle", new { indice = profesional.index, respuesta = "SI" });
                 
             }
@@ -131,6 +129,7 @@ namespace ProyectoHipocrates.Controllers
 
         public ActionResult saltearProfesional(int index)
         {
+            ((List<ProfesionalModel>)Session["LstProfesionales"]).Where(x => x.index == index).ToList().FirstOrDefault().vigente = false;
             this.AddToastMessage("", "Se ha Cancelado el profesional", ToastType.Error);           
             return RedirectToAction("EscribirEnGoogle", new { indice = index, respuesta = "NO"});
 
@@ -161,16 +160,18 @@ namespace ProyectoHipocrates.Controllers
         {
             try
             {
-                repo.ReplicarEnInstancias();
-                Thread.Sleep(60000);
-
                 //Agregar para que al volver a entrar si Session["LstProfesionales"] está vacío, salga. Jaja, Saludos.
                 
-                lstNuevosProf = (List<ProfesionalModel>)Session["LstProfesionales"];
+                lstNuevosProf = ((List<ProfesionalModel>)Session["LstProfesionales"]).Where(x => x.vigente == true).ToList();                
+
                 if (lstNuevosProf.Count == 0)
                 {
                     return View("ErrorFin");
                 }
+                //Se replican los datos que se encontraban en Central.
+                repo.ReplicarEnInstancias();
+                Thread.Sleep(60000);
+
                 AgregarEspecialidades(lstNuevosProf);
                 this.AddToastMessage("", "Finalizó la replicación de profesionales y la carga de especialidad correctamente.", ToastType.Success);
                 Session.Clear();
