@@ -246,7 +246,7 @@ namespace ProyectoHipocrates
                     nombreBase = "PoliclinicoConection";
                     break;
                 default:
-                    nombreBase = "";
+                    nombreBase = establecimiento+"Conection";
                     break;
             }
 
