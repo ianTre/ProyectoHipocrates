@@ -22,7 +22,7 @@
                 @Html.HiddenFor(model => model.fechaCrea)
                 @Html.HiddenFor(model => model.usuarioCrea)
                 @Html.HiddenFor(model => model.idSexo)
-
+                @Html.HiddenFor(model => model.index)
 
                 <div class="form-group">
                     @Html.LabelFor(model => model.numeroDocumento, new { @class = "control-label col-md-2" })
@@ -113,13 +113,12 @@
                     </div>
                     @Html.ValidationMessageFor(model => model.vigente, "", new { @class = "col-md-2" })
                 </div>
-                @Html.HiddenFor(model => model.index)
                 <div class="form-group">
                     <div class="col-md-offset-2 col-md-10">
                         <input type="submit" value="Guardar" class="btn btn-primary" />
                         @Html.HiddenFor(model => model.especialidad)
 
-                        @Html.ActionLink("Cancelar", "saltearProfesional", new { index = Model.index }, new { @class = "btn btn-default" })
+                        @Html.ActionLink("Cancelar", "saltearProfesional", new { indice = Model.index }, new { @class = "btn btn-default" })
                     </div>
                 </div>
             </div>

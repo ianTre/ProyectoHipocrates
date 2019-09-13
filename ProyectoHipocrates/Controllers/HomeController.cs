@@ -82,7 +82,7 @@ namespace ProyectoHipocrates.Controllers
                 profesional.especialidad = lstEsp.Where(x => x.nombre == profesional.nombreEspecialidad).ToList().FirstOrDefault();
 
                 string errores;
-
+                int indice = profesional.index;
                 //Verificar consistencia de profesional, DNI, Nombre y Apellido, Matricula. 
                 //Si los datos son erróneos, se vuelve al mismo profesional para arreglarlo.
                 if (profesional.EsConsistente())
@@ -96,9 +96,9 @@ namespace ProyectoHipocrates.Controllers
                         profesional.otrosNombres = priMayus(profesional.otrosNombres);
 
                         /*Actualizar Listado Profesionales*/
-                        ((List<ProfesionalModel>)Session["LstProfesionales"]).Where(x => x.index == profesional.index).ToList().FirstOrDefault().especialidad = profesional.especialidad;
-                        ((List<ProfesionalModel>)Session["LstProfesionales"]).Where(x => x.index == profesional.index).ToList().FirstOrDefault().nombreEspecialidad = profesional.nombreEspecialidad;
-                        ((List<ProfesionalModel>)Session["LstProfesionales"]).Where(x => x.index == profesional.index).ToList().FirstOrDefault().primerApellido = profesional.primerApellido;
+                        ((List<ProfesionalModel>)Session["LstProfesionales"]).Where(x => x.index == indice).ToList().FirstOrDefault().especialidad = profesional.especialidad;
+                        ((List<ProfesionalModel>)Session["LstProfesionales"]).Where(x => x.index == indice).ToList().FirstOrDefault().nombreEspecialidad = profesional.nombreEspecialidad;
+                        ((List<ProfesionalModel>)Session["LstProfesionales"]).Where(x => x.index == indice).ToList().FirstOrDefault().primerApellido = profesional.primerApellido;
                                                 
                         //Se inserta en la base Central.
                         repo.InsertarProfesional(profesional);
@@ -107,7 +107,7 @@ namespace ProyectoHipocrates.Controllers
                     else
                     {
                         this.AddToastMessage("", errores, ToastType.Error);//salteo 
-                        return RedirectToAction("saltearProfesional", profesional.index);
+                        return RedirectToAction("saltearProfesional", indice);
                     }
                 }
                 else
@@ -115,8 +115,8 @@ namespace ProyectoHipocrates.Controllers
                     this.AddToastMessage("", "Datos de Profesional Inconsistentes", ToastType.Error);
                     return RedirectToAction("Nuevo");
                 }
-                ((List<ProfesionalModel>)Session["LstProfesionales"]).Where(x => x.index == profesional.index).ToList().FirstOrDefault().vigente = true;
-                return RedirectToAction("EscribirEnGoogle", new { indice = profesional.index, respuesta = "SI" });
+                ((List<ProfesionalModel>)Session["LstProfesionales"]).Where(x => x.index == indice).ToList().FirstOrDefault().vigente = true;
+                return RedirectToAction("EscribirEnGoogle", new { indice = indice, respuesta = "SI" });
                 
             }
             catch (Exception ex)
@@ -127,11 +127,11 @@ namespace ProyectoHipocrates.Controllers
             }
         }
 
-        public ActionResult saltearProfesional(int index)
+        public ActionResult saltearProfesional(int indice)
         {
-            ((List<ProfesionalModel>)Session["LstProfesionales"]).Where(x => x.index == index).ToList().FirstOrDefault().vigente = false;
+            ((List<ProfesionalModel>)Session["LstProfesionales"]).Where(x => x.index == indice).ToList().FirstOrDefault().vigente = false;
             this.AddToastMessage("", "Se ha Cancelado el profesional", ToastType.Error);           
-            return RedirectToAction("EscribirEnGoogle", new { indice = index, respuesta = "NO"});
+            return RedirectToAction("EscribirEnGoogle", new { indice = indice, respuesta = "NO"});
 
         }
 
