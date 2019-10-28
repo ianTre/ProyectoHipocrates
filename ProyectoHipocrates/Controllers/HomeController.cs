@@ -39,7 +39,6 @@ namespace ProyectoHipocrates.Controllers
 
         public ActionResult Nuevo()
         {
-
             //Inicializo el indice.
             if (Session["indice"] == null)
             {
@@ -68,8 +67,6 @@ namespace ProyectoHipocrates.Controllers
                 return View("ReplicaCentral");
             }            
         }
-
-
 
 
         [HttpPost]
@@ -107,7 +104,7 @@ namespace ProyectoHipocrates.Controllers
                     else
                     {
                         this.AddToastMessage("", errores, ToastType.Error);//salteo 
-                        return RedirectToAction("saltearProfesional", indice);
+                        return RedirectToAction("saltearProfesional", new { indice = indice });
                     }
                 }
                 else
@@ -213,19 +210,16 @@ namespace ProyectoHipocrates.Controllers
                 {
                     return "Ya existe un profesional con el mismo número de documento";
                 }
-                if (lstProfesionales.Exists(x => x.primerApellido.Trim().ToLower() == nuevoProfesional.primerApellido.Trim().ToLower() && x.primerNombre.ToLower().Trim() == nuevoProfesional.primerNombre.ToLower().Trim()))
-                {
-                    return "Ya existe un profesional con el mismo nombre y/o apellido";
-                }
 
                 if (lstProfesionales.Exists(x => x.matricula == nuevoProfesional.matricula))
                 {
                     return "Ya existe un profesional con el mismo número de matrícula";
                 }
-                if (!String.IsNullOrEmpty(nuevoProfesional.otrosNombres)) {
-                    if (normalizar(nuevoProfesional.apellidoSisa.ToLower()) == normalizar(nuevoProfesional.primerApellido.ToLower()) && (normalizar(nuevoProfesional.nombreSisa).Contains(normalizar(nuevoProfesional.primerNombre.ToLower().Trim())) || normalizar(nuevoProfesional.nombreSisa).Contains(normalizar(nuevoProfesional.otrosNombres.ToLower().Trim()))))
-                        return "Datos Distintos de SISA";
-                }
+
+                //if (!String.IsNullOrEmpty(nuevoProfesional.otrosNombres)) {
+                //    if (normalizar(nuevoProfesional.apellidoSisa.ToLower()) == normalizar(nuevoProfesional.primerApellido.ToLower()) && (normalizar(nuevoProfesional.nombreSisa).Contains(normalizar(nuevoProfesional.primerNombre.ToLower().Trim())) || normalizar(nuevoProfesional.nombreSisa).Contains(normalizar(nuevoProfesional.otrosNombres.ToLower().Trim()))))
+                //        return "Datos Distintos de SISA";
+                //}
 
                 return string.Empty;
             }
@@ -235,10 +229,10 @@ namespace ProyectoHipocrates.Controllers
             }
         }
 
-        public string normalizar(string palabra)
-        {
-            return Encoding.UTF8.GetString(Encoding.GetEncoding("ISO-8859-9").GetBytes(palabra));
-        }
+        //public string normalizar(string palabra)
+        //{
+        //    return Encoding.UTF8.GetString(Encoding.GetEncoding("ISO-8859-9").GetBytes(palabra));
+        //}
 
         public string priMayus(string palabra)
         {

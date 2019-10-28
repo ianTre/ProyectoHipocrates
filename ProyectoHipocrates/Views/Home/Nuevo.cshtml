@@ -134,6 +134,10 @@
         return texto.normalize('NFD').replace(/[\u0300-\u036f]/g, "").toLowerCase();
     }
 
+    function agregarDesagregar(valor, agrega, desagrega) {
+        $(valor).addClass(agrega).removeClass(desagrega)
+    }
+
     (function inicial() {
         'use strict';
         window.addEventListener('load', function () {
@@ -171,23 +175,27 @@
 
     function chequearInputsApellidos() {
 
-        var prApellido = $('#primerApellido').val();
+        var prApellido = $('#primerApellido').val().trim();
         var siApellido = $('#apellidoSisa').val();
 
         if (eliminarDiacriticos(prApellido) === eliminarDiacriticos(siApellido)) {
 
             if (eliminarDiacriticos(prApellido) !== null && eliminarDiacriticos(prApellido) !== '' && eliminarDiacriticos(siApellido) !== null && eliminarDiacriticos(siApellido) !== ''){
-                $('#primerApellido').addClass('input-validation-valid').removeClass('input-validation-error')
-                $('#apellidoSisa').addClass('input-validation-valid').removeClass('input-validation-error')
+
+                agregarDesagregar('#primerApellido', 'input-validation-valid', 'input-validation-error')
+                agregarDesagregar('#apellidoSisa', 'input-validation-valid', 'input-validation-error')
+
             } else {
-                $('#primerApellido').addClass('input-validation-error').removeClass('input-validation-valid')
-                $('#apellidoSisa').addClass('input-validation-error').removeClass('input-validation-valid')
+
+                agregarDesagregar('#primerApellido', 'input-validation-error', 'input-validation-valid')
+                agregarDesagregar('#apellidoSisa', 'input-validation-error', 'input-validation-valid')
+
                 return false;
 
             }            
         } else {
-            $('#primerApellido').addClass('input-validation-error').removeClass('input-validation-valid')
-            $('#apellidoSisa').addClass('input-validation-error').removeClass('input-validation-valid')
+            agregarDesagregar('#primerApellido', 'input-validation-error', 'input-validation-valid')
+            agregarDesagregar('#apellidoSisa', 'input-validation-error', 'input-validation-valid')
 
             return false;
         }        
@@ -205,23 +213,25 @@
 
             if (eliminarDiacriticos(prNombre) !== null && eliminarDiacriticos(prNombre) !== '' && eliminarDiacriticos($('#nombreSisa').val()) !== null && eliminarDiacriticos($('#nombreSisa').val()) !== '') {
 
-                $('#primerNombre').addClass('input-validation-valid').removeClass('input-validation-error')
-                $('#nombreSisa').addClass('input-validation-valid').removeClass('input-validation-error')
-                $('#otrosNombres').addClass('input-validation-valid').removeClass('input-validation-error')
+                agregarDesagregar('#primerNombre', 'input-validation-valid', 'input-validation-error')
+                agregarDesagregar('#nombreSisa', 'input-validation-valid', 'input-validation-error')
+                agregarDesagregar('#otrosNombres', 'input-validation-valid', 'input-validation-error')
+
             } else {
-                $('#primerNombre').addClass('input-validation-error').removeClass('input-validation-valid')
-                $('#nombreSisa').addClass('input-validation-error').removeClass('input-validation-valid')
-                $('#otrosNombres').addClass('input-validation-error').removeClass('input-validation-valid')
+
+                agregarDesagregar('#primerNombre', 'input-validation-error', 'input-validation-valid')
+                agregarDesagregar('#nombreSisa', 'input-validation-error', 'input-validation-valid')
+                agregarDesagregar('#otrosNombres', 'input-validation-error', 'input-validation-valid')
+
                 return false;
 
             } 
 
 
         } else {
-
-            $('#primerNombre').addClass('input-validation-error').removeClass('input-validation-valid')
-            $('#nombreSisa').addClass('input-validation-error').removeClass('input-validation-valid')
-            $('#otrosNombres').addClass('input-validation-error').removeClass('input-validation-valid')
+            agregarDesagregar('#primerNombre', 'input-validation-error', 'input-validation-valid')
+            agregarDesagregar('#nombreSisa', 'input-validation-error', 'input-validation-valid')
+            agregarDesagregar('#otrosNombres', 'input-validation-error', 'input-validation-valid')
 
             return false;
         }
@@ -233,14 +243,16 @@
         var matricula = $('#matricula').val().trim();
 
         if (matricula !== null && matricula !== '') {
-            $('#matricula').addClass('input-validation-valid').removeClass('input-validation-error')
+            agregarDesagregar('#matricula', 'input-validation-valid', 'input-validation-error')
 
         } else {
-            $('#matricula').addClass('input-validation-error').removeClass('input-validation-valid')
+            agregarDesagregar('#matricula', 'input-validation-error', 'input-validation-valid')
             return false;
         }
         return true;
     }
+
+
 
     function esNumero(evt) {
         evt = (evt) ? evt : window.event;

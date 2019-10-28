@@ -125,6 +125,7 @@ namespace ProyectoHipocrates
                         i++;
                         if (values[0] == row)
                             continue;
+
                         ProfesionalModel profesional = BindearProfesional(row, i, especialidades);
                         if (!Object.Equals(null, profesional))
                             lista.Add(profesional);
@@ -167,9 +168,12 @@ namespace ProyectoHipocrates
         }
 
         private static ProfesionalModel BindearProfesional(IList<object> row, int index, List<Especialidad> lstEspecialidad)
+
         {
             try
+
             {
+
                 if (Object.Equals(util,null))
                     util = new Utils();
 
